@@ -1,12 +1,8 @@
-
-
 <?php
-// db.php
-
 $host = 'localhost';
-$dbname = 'blog_db';
+$dbname = 'test';
 $username = 'root';
-$password = '';
+$password = 'Chouaib2004';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);

@@ -1,25 +1,24 @@
+
 <?php
-
-session_start();
-if (!isset($_SESSION["user_id"])){
-    header("Location: login.php");
-}
-
+include '../includes/header.php';
 include '../includes/db.php';
 
-if ($_SESSION['REQUEST_METHOD'] == 'POST'){
-    $title = $_POST['title'];
-    $content = $_POST['content'];
-    $user_id = $_SESSION['user_id'];
-
-    $stmt = $pdo->prepare("INSERT INTO posts(title, content, user_id) VALUES(?, ?, ?)");
-    $stmt->execute([$title, $content, $user_id]);
+if (!isLoggedIn()) {
+    redirect('/pages/login.php');
 }
 
-$stmt = $pdo->prepare("SELECT*FROM posts WHERE user_id = ?");
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $title = sanitizeInput($_POST['title']);
+    $content = sanitizeInput($_POST['content']);
+    $user_id = $_SESSION['user_id'];
+
+    $stmt = $pdo->prepare("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)");
+    $stmt->execute([$user_id, $title, $content]);
+}
+
+$stmt = $pdo->prepare("SELECT * FROM posts WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $posts = $stmt->fetchAll();
-
 ?>
 
 <h1>Dashboard</h1>
@@ -29,11 +28,14 @@ $posts = $stmt->fetchAll();
     <button type="submit">Add Post</button>
 </form>
 
-
 <h2>Your Posts</h2>
-<?php foreach ($posts as $post) : ?>
-   <div>
-       <h3><?php echo $post['title']; ?></h3>
-       <h3><?php echo $post['title']; ?></h3>
-   </div>
+<?php foreach ($posts as $post): ?>
+    <div class="post">
+        <h3><?php echo $post['title']; ?></h3>
+        <p><?php echo $post['content']; ?></p>
+    </div>
 <?php endforeach; ?>
+
+<?php
+include '../includes/footer.php';
+?>
